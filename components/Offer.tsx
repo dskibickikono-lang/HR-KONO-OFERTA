@@ -1,12 +1,53 @@
 import React from 'react';
-import { FileText, Phone, MapPin, Calculator, Shield, Users, CheckCircle, TrendingUp, Truck } from 'lucide-react';
+import { FileText, Phone, MapPin, Calculator, Shield, Users, CheckCircle, TrendingUp, Truck, Download } from 'lucide-react';
 
 const Offer: React.FC = () => {
   // Primary color: #c0a068
   
+  const handleDownloadPDF = () => {
+    const element = document.getElementById('offer-content');
+    if (!element) return;
+
+    const opt = {
+      margin: 0,
+      filename: 'Oferta_HR_KONO_Mława.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { 
+        scale: 2, 
+        useCORS: true, 
+        letterRendering: true,
+        scrollY: 0
+      },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    // @ts-ignore
+    if (typeof html2pdf !== 'undefined') {
+      // @ts-ignore
+      html2pdf().set(opt).from(element).save();
+    } else {
+      // Fallback to print if library is not loaded
+      window.print();
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#f9f7f2] font-sans text-slate-800 p-4 md:p-8 print:p-0">
-      <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-lg overflow-hidden print:shadow-none border border-[#c0a068]/20">
+    <div className="min-h-screen bg-[#f9f7f2] font-sans text-slate-800 p-4 md:p-8 print:p-0 print:bg-white">
+      
+      {/* Floating Action Button for PDF - Hidden during print */}
+      <button 
+        onClick={handleDownloadPDF}
+        className="fixed bottom-8 right-8 bg-[#c0a068] text-white p-4 rounded-full shadow-2xl hover:bg-[#ac8e5a] transition-all transform hover:scale-110 flex items-center gap-2 z-50 group print:hidden"
+        title="Pobierz PDF"
+      >
+        <Download size={24} />
+        <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 font-bold whitespace-nowrap">
+          Pobierz PDF
+        </span>
+      </button>
+
+      {/* Main Container with ID for PDF Generation */}
+      <div id="offer-content" className="max-w-4xl mx-auto bg-white shadow-2xl rounded-lg overflow-hidden print:shadow-none border border-[#c0a068]/20 print:border-none">
         
         {/* Header */}
         <header className="bg-[#c0a068] text-white p-8 flex flex-col md:flex-row justify-between items-start md:items-center">
@@ -39,7 +80,7 @@ const Offer: React.FC = () => {
             <p className="text-slate-500 font-medium italic">Profesjonalne usługi HR Outsourcing</p>
         </div>
 
-        {/* Final Rates Section - UPDATED: Hourly rate highlighted */}
+        {/* Final Rates Section */}
         <div className="px-8 py-6 bg-[#c0a068]/5 border-b border-[#c0a068]/10">
           <div className="flex items-center gap-2 mb-4">
              <div className="h-6 w-1.5 bg-[#c0a068] rounded-full"></div>
