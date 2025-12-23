@@ -11,17 +11,22 @@ const Offer: React.FC<Props> = ({ data }) => {
     const element = document.getElementById('offer-content');
     if (!element) return;
 
+    // Przewinięcie na górę przed renderowaniem dla uniknięcia przesunięć
+    window.scrollTo(0, 0);
+
     const opt = {
       margin: 0,
       filename: `Oferta_HR_KONO_${data.clientName.replace(/\s+/g, '_')}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
+      image: { type: 'jpeg', quality: 1.0 },
       html2canvas: { 
-        scale: 2, 
+        scale: 3, // Wysoka rozdzielczość renderowania (300 DPI+)
         useCORS: true, 
         letterRendering: true,
-        scrollY: 0
+        scrollY: 0,
+        windowWidth: 1200, // Stała szerokość dla spójnego layoutu
+        logging: false
       },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true }
     };
 
     // @ts-ignore
@@ -37,6 +42,19 @@ const Offer: React.FC<Props> = ({ data }) => {
 
   return (
     <div className="min-h-screen bg-[#f9f7f2] font-sans text-slate-800 p-4 md:p-8 print:p-0 print:bg-white">
+      {/* Dynamiczne style poprawiające jakość renderowania */}
+      <style>{`
+        @media print {
+          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+        #offer-content {
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+          text-rendering: optimizeLegibility;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+      `}</style>
       
       <button 
         onClick={handleDownloadPDF}
