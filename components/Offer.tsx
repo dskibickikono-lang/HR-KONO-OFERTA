@@ -11,6 +11,9 @@ const Offer: React.FC<Props> = ({ data }) => {
     const element = document.getElementById('offer-content');
     if (!element) return;
 
+    // Przewinięcie na górę jest kluczowe dla html2canvas, aby uniknąć czarnych obszarów lub przesunięć
+    window.scrollTo(0, 0);
+
     const opt = {
       margin: 0,
       filename: `Oferta_HR_KONO_${data.clientName.replace(/\s+/g, '_')}.pdf`,
@@ -19,10 +22,14 @@ const Offer: React.FC<Props> = ({ data }) => {
         scale: 3, 
         useCORS: true, 
         letterRendering: true,
-        scrollY: 0,
-        windowWidth: 1000, // Zwiększone dla lepszej ostrości przy scale
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        // Wymuszenie rozpoczęcia przechwytywania od lewej krawędzi (naprawia widok "tylko prawej krawędzi")
+        x: 0,
+        y: 0,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: 800 // Szerokość okna wirtualnego dopasowana do kontenera
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true }
     };
@@ -61,10 +68,10 @@ const Offer: React.FC<Props> = ({ data }) => {
         </span>
       </button>
 
-      {/* Kontener A4 o stałej szerokości dla silnika PDF */}
+      {/* Kontener A4 o stałej szerokości (800px) - idealnie mieści się w widoku i na PDF bez ucinania */}
       <div 
         id="offer-content" 
-        className="w-[794px] bg-white shadow-2xl overflow-hidden print:shadow-none border border-[#c0a068]/20 print:border-none"
+        className="w-[800px] bg-white shadow-2xl overflow-hidden print:shadow-none border border-[#c0a068]/20 print:border-none flex-shrink-0"
       >
         
         <header className="bg-[#c0a068] text-white p-10 flex justify-between items-start">
@@ -157,9 +164,19 @@ const Offer: React.FC<Props> = ({ data }) => {
                      <td className="py-3 px-6 text-right bg-[#c0a068]/5 font-medium">{formatRBH(data.rentowa)} zł</td>
                    </tr>
                    <tr>
-                     <td className="py-3 px-6 text-slate-600 pl-10 italic">Pozostałe składki ZUS, FP i FGSP</td>
-                     <td className="py-3 px-6 text-right font-medium">{(data.wypadkowa + data.fp + data.fgsp).toLocaleString('pl-PL')} zł</td>
-                     <td className="py-3 px-6 text-right bg-[#c0a068]/5 font-medium">{formatRBH(data.wypadkowa + data.fp + data.fgsp)} zł</td>
+                     <td className="py-3 px-6 text-slate-600 pl-10 italic">ZUS Wypadkowy (1,67%)</td>
+                     <td className="py-3 px-6 text-right font-medium">{data.wypadkowa.toLocaleString('pl-PL')} zł</td>
+                     <td className="py-3 px-6 text-right bg-[#c0a068]/5 font-medium">{formatRBH(data.wypadkowa)} zł</td>
+                   </tr>
+                   <tr>
+                     <td className="py-3 px-6 text-slate-600 pl-10 italic">Fundusz Pracy (FP)</td>
+                     <td className="py-3 px-6 text-right font-medium">{data.fp.toLocaleString('pl-PL')} zł</td>
+                     <td className="py-3 px-6 text-right bg-[#c0a068]/5 font-medium">{formatRBH(data.fp)} zł</td>
+                   </tr>
+                   <tr>
+                     <td className="py-3 px-6 text-slate-600 pl-10 italic">FGSP</td>
+                     <td className="py-3 px-6 text-right font-medium">{data.fgsp.toLocaleString('pl-PL')} zł</td>
+                     <td className="py-3 px-6 text-right bg-[#c0a068]/5 font-medium">{formatRBH(data.fgsp)} zł</td>
                    </tr>
 
                    {data.housingCost > 0 && (
@@ -178,7 +195,7 @@ const Offer: React.FC<Props> = ({ data }) => {
                    )}
                    
                    {(data.medicalExamCost > 0 || data.bhpTrainingCost > 0 || data.sanepidCost > 0 || data.workClothingCost > 0) && (
-                     <tr>
+                     <tr className="bg-slate-50/10">
                        <td className="py-3 px-6 text-slate-600 italic flex items-center gap-2"><Shield size={14} className="text-[#c0a068]/60" /> Inne koszty (Medycyna, BHP, Odzież)</td>
                        <td className="py-3 px-6 text-right font-medium">{(data.medicalExamCost + data.bhpTrainingCost + data.sanepidCost + data.workClothingCost).toLocaleString('pl-PL')} zł</td>
                        <td className="py-3 px-6 text-right bg-[#c0a068]/5 font-medium">{formatRBH(data.medicalExamCost + data.bhpTrainingCost + data.sanepidCost + data.workClothingCost)} zł</td>
