@@ -4,7 +4,6 @@ import CalculatorForm from './components/CalculatorForm';
 
 export type CalculationData = {
   clientName: string;
-  entity: string; // Nowe pole
   grossRate: number;
   hours: number;
   transportCost: number;
@@ -14,7 +13,6 @@ export type CalculationData = {
   sanepidCost: number;
   workClothingCost: number;
   marginPercent: number;
-  accidentPercent: number; // Nowe pole
   // Wyniki obliczeń
   podstawaZus: number;
   emerytalna: number;

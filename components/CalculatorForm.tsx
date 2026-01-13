@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calculator, Users, TrendingUp, Home, Truck, FileCheck, ShieldAlert, HeartPulse, HardHat, Shirt, Building2 } from 'lucide-react';
+import { Calculator, Users, TrendingUp, Home, Truck, FileCheck, ShieldAlert, HeartPulse, HardHat, Shirt } from 'lucide-react';
 import { CalculationData } from '../App';
 
 interface Props {
@@ -8,10 +8,8 @@ interface Props {
 }
 
 const CalculatorForm: React.FC<Props> = ({ onGenerate, initialData }) => {
-  const [entity, setEntity] = useState(initialData?.entity || 'HR KONO');
   const [clientName, setClientName] = useState(initialData?.clientName || 'Fine Altech Mława Sp. z o.o.');
   const [grossRate, setGrossRate] = useState(initialData?.grossRate || 31.40);
-  const [accidentPercent, setAccidentPercent] = useState(initialData?.accidentPercent || 1.20);
   const [hours, setHours] = useState(initialData?.hours || 240);
   const [transportCost, setTransportCost] = useState(initialData?.transportCost || 50);
   const [housingCost, setHousingCost] = useState(initialData?.housingCost || 500);
@@ -21,26 +19,11 @@ const CalculatorForm: React.FC<Props> = ({ onGenerate, initialData }) => {
   const [workClothingCost, setWorkClothingCost] = useState(initialData?.workClothingCost || 0);
   const [marginPercent, setMarginPercent] = useState(initialData?.marginPercent || 1);
 
-  const handleEntityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selected = e.target.value;
-    setEntity(selected);
-    
-    if (selected === 'HR KONO') {
-      setAccidentPercent(1.20);
-    } else if (selected === 'APT WORK') {
-      setAccidentPercent(0.93);
-    }
-    // Dla 'Inny' nie zmieniamy wartości automatycznie, użytkownik wpisuje sam
-  };
-
   const calculate = () => {
     const podstawaZus = Number((grossRate * hours).toFixed(2));
     const emerytalna = Number((podstawaZus * 0.0976).toFixed(2));
     const rentowa = Number((podstawaZus * 0.065).toFixed(2));
-    
-    // Użycie dynamicznej stawki wypadkowej
-    const wypadkowa = Number((podstawaZus * (accidentPercent / 100)).toFixed(2));
-    
+    const wypadkowa = Number((podstawaZus * 0.0167).toFixed(2));
     const fp = Number((podstawaZus * 0.0245).toFixed(2));
     const fgsp = Number((podstawaZus * 0.001).toFixed(2));
     
@@ -53,16 +36,14 @@ const CalculatorForm: React.FC<Props> = ({ onGenerate, initialData }) => {
     const nettoWorker = Number((grossRate * 0.8076).toFixed(2));
 
     return {
-      clientName, entity, grossRate, hours, transportCost, housingCost, 
+      clientName, grossRate, hours, transportCost, housingCost, 
       medicalExamCost, bhpTrainingCost, sanepidCost, workClothingCost,
-      marginPercent, accidentPercent,
-      podstawaZus, emerytalna, rentowa, wypadkowa, fp, fgsp, 
+      marginPercent, podstawaZus, emerytalna, rentowa, wypadkowa, fp, fgsp, 
       marzaKwota, finalMonthly, finalHourly, nettoWorker
     };
   };
 
   const results = calculate();
-  const isAccidentRateDisabled = entity !== 'Inny';
 
   return (
     <div className="max-w-5xl mx-auto p-6 md:p-12">
@@ -78,57 +59,18 @@ const CalculatorForm: React.FC<Props> = ({ onGenerate, initialData }) => {
               <FileCheck size={24} /> Dane Podstawowe
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
-              {/* Entity Selector - Option 2 Implementation */}
-              <div className="col-span-1 md:col-span-2 space-y-2">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                  <Building2 size={14} /> Podmiot Zatrudniający
-                </label>
-                <select 
-                  value={entity} 
-                  onChange={handleEntityChange}
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#c0a068] outline-none transition-all text-slate-900 font-bold"
-                >
-                  <option value="HR KONO">HR KONO S.A.</option>
-                  <option value="APT WORK">APT WORK Sp. z o.o.</option>
-                  <option value="Inny">Inny (Własna stawka)</option>
-                </select>
-              </div>
-
               <div className="space-y-2">
                 <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Nazwa Klienta</label>
                 <input type="text" value={clientName} onChange={(e) => setClientName(e.target.value)} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#c0a068] outline-none transition-all text-slate-900 font-medium" />
               </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Liczba Godzin</label>
-                <input type="number" value={hours} onChange={(e) => setHours(Number(e.target.value))} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#c0a068] outline-none font-bold text-slate-900" />
-              </div>
-
               <div className="space-y-2">
                 <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Stawka Brutto (PLN)</label>
                 <input type="number" step="0.01" value={grossRate} onChange={(e) => setGrossRate(Number(e.target.value))} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#c0a068] outline-none font-bold text-lg text-slate-900" />
               </div>
-
               <div className="space-y-2">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
-                  ZUS Wypadkowy (%)
-                  {isAccidentRateDisabled && <span className="ml-1 text-[9px] bg-slate-200 px-1 rounded text-slate-500">AUTO</span>}
-                </label>
-                <input 
-                  type="number" 
-                  step="0.01" 
-                  value={accidentPercent} 
-                  onChange={(e) => setAccidentPercent(Number(e.target.value))} 
-                  disabled={isAccidentRateDisabled}
-                  className={`w-full p-3 border rounded-lg outline-none font-bold text-slate-900 transition-colors ${
-                    isAccidentRateDisabled 
-                      ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' 
-                      : 'bg-slate-50 border-slate-200 focus:ring-2 focus:ring-[#c0a068]'
-                  }`} 
-                />
+                <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Liczba Godzin</label>
+                <input type="number" value={hours} onChange={(e) => setHours(Number(e.target.value))} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#c0a068] outline-none font-bold text-slate-900" />
               </div>
-
               <div className="space-y-2">
                 <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Marża (%)</label>
                 <input type="number" step="0.1" value={marginPercent} onChange={(e) => setMarginPercent(Number(e.target.value))} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#c0a068] outline-none font-bold text-slate-900" />
@@ -208,7 +150,7 @@ const CalculatorForm: React.FC<Props> = ({ onGenerate, initialData }) => {
              </div>
              <div>
                 <p className="text-xs font-black text-[#396542] uppercase tracking-tighter">Weryfikacja Kadr</p>
-                <p className="text-[11px] text-slate-600 font-medium">Algorytm ZUS zgodny z wytycznymi {entity}.</p>
+                <p className="text-[11px] text-slate-600 font-medium">Algorytm przetestowany przez dział kadr i płac.</p>
              </div>
           </div>
         </div>
